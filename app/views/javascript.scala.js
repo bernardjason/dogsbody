@@ -1,102 +1,14 @@
 @(user:User)
 @import helper._
 
-var chartdata = null ; //new google.visualization.DataTable();;
+var chartdata = null ; // new google.visualization.DataTable();;
 var chart = null;
 var chartoptions = null;
 
 setupJobChart();
 
 
-var currentDate= new Date()
 var jobs = []
-function getAdjustedWeek(addToIt) {
-	var d = currentDate
-	var offset =  addToIt *60*60*24*1000
-	d.setTime(d.getTime() + offset)		
-
-	var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-
-	var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
-
-	return ""+d.getFullYear()+"-W"+ weekNo
-}
-
-function selectWeek(direction) {
-	$('#week').val(getAdjustedWeek(direction*7))
-	loadTimeEntryData(currentDate);
-}
-
-function firstDayOfWeek (both) {
-
-	var year = both.substring(0, 4)
-	var week = parseInt( both.substring(6,9) )
-
-	var d = new Date(year, 0, 1),
-	offset = d.getTimezoneOffset();
-
-	d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-
-	d.setTime(d.getTime() + 7 * 24 * 60 * 60 * 1000 
-			* (week + (year == d.getFullYear() ? -1 : 0 )));
-
-	d.setTime(d.getTime() 
-			+ (d.getTimezoneOffset() - offset) * 60 * 1000);
-
-	d.setDate(d.getDate() - 3);
-
-	return d ;
-}
-
-function loadTimeEntryData(forDate) {
-
-	$("#timeentries").empty();
-	$("#timeentries").append('<div class="loader"></div>')
-
-	var week = null
-	if (  $('#week').val() != "" ) {
-		var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-		var first = forDate
-		if ( first  === "undefined" || first == null ) first = firstDayOfWeek( $('#week').val()  )
-
-		currentDate = first
-		var show = "Monday "+ first.getDate() +' ' +months[first.getMonth()] +' '+first.getUTCFullYear() 
-
-		week = "week="+encodeURIComponent( first.getTime() )
-		$("#displayweek").text(show);
-	} else {
-		$("#displayweek").text("All");
-	}	
-
-	var total=0.0	
-	$.getJSON(			
-			"api/timeentries", week,
-			function(data) {
-				$("#timeentries").empty();
-				$.each(	data,function(key, j) {
-					var head = '<tr>'
-
-						var newone = '<td>'+ j.task+ '</td><td>' + j.effort + '</td>' +
-						'<td><button type="button" onClick="deleteEntry('+j.id+')" class="btn btn-danger">-</button></td>'
-						var tail = '</tr>'
-							total=total+j.effort
-
-							$("#timeentries").append( head + newone +tail ); 
-				});
-
-				$('#total').text(total)
-
-			}).fail(function(response) {
-				$("#timeentries").empty();
-				if ( response.status == 401 ) {
-					$("#timeentries").append('<br><br><p align="right"><b>not logged in</b></p>')
-				} else {
-					$("#timeentries").append('<br><br><p align="right"><b>' + response.statusText + ":"+ response.status + '</b></p>')
-				}
-				console.log("error " + response.statusText + ":"+ response.status+" - " +response.responseText)
-			})
-}
 
 
 function addJob() {
@@ -133,16 +45,6 @@ function setupJobChart() {
       };
 
       chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div'));
-      /*
-      chartdata = google.visualization.arrayToDataTable([
-          ['Date','Free' , 'Task1','Task2','Task3'],
-          ['Monday',10,10,10,jobs[0].priority],
-          ['Tuesday',5,5,8,12],
-          ['Wednesday',6,6,6,12],
-          ['Thursday',4,4,4,18],
-          ['Friday',9,9,9,3]
-        ]);
-        */
       
       console.log("CHART ready");
       doJobChart();
@@ -157,9 +59,11 @@ function doJobChart() {
 		var jobsFromToday = []
 		for ( i=0 ; i < jobs.length ; i=i+1) {
 			var j = jobs[i];
-			if ( j.start_date_seconds < today && j.end_date_seconds > today ) {
+			if ( j.end_date_seconds > today ) {
 				jobsFromToday.push(j)
-				console.log("from today "+j);
+				console.log("qualifies today "+j);
+			} else {
+				console.log("reject "+today+" start="+j.start_date_seconds+" end="+j.end_date_seconds);
 			}
 		}
 
@@ -178,7 +82,7 @@ function doJobChart() {
 			var free = 1
 			for( i=0 ; i < jobsFromToday.length ; i=i+1 ) {
 			    var j = jobsFromToday[i];
-			    if ( j.end_date_seconds > d-day ) {
+			    if ( j.end_date_seconds > d-day && j.start_date_seconds < d ) {
 			    	row.push(j.ideal_daily_effort)
 			    	free=free - j.ideal_daily_effort
 			    } else {
@@ -216,10 +120,7 @@ function loadJobsData() {
 				$.each(	data,function(key, j) {
 					console.log(j)
 					jobs.push(j)
-					var xhead = '<tr data-toggle="modal" onClick="selectJob('+accordion+')" data-id="jobrow'+accordion+'" data-target="#updateJobModal" >'
 					var head = '<tr>'
-
-						console.log(j);
 
 					var newone = 
 						'<td><a href="#updateJobModal" class="btn btn-default btn-block" onClick="selectJob('+accordion+')" data-id="jobrow'+accordion+'">' + j.description + '</a></td>' +
@@ -233,7 +134,7 @@ function loadJobsData() {
 						'<td><button type="button" onClick="deleteJobEntry('+j.id+')" class="btn btn-danger">-</button></td>'
 						var tail = '</tr>'
 
-							$("#jobs").append( head + newone +tail ); 
+					$("#jobs").append( head + newone +tail ); 
 
 					accordion=accordion+1
 				});
@@ -283,7 +184,6 @@ function updateValue(comp,row,field,t) {
 		url : "/api/jobs",
 		success : function(data) {
 			console.log("SAVED "+JSON.stringify(data));
-			// loadJobsData();
 		},
 		error : function(response) {
 			alert("error " + response.statusText + ":"+ response.status+" - " +response.responseText)
@@ -331,9 +231,6 @@ function deleteEntry(id) {
 		}
 	});
 }
-function addTask() {
-	$('#addTaskPost').modal('show');
-}
 
 function selectJob(j) {
 	$('#updateJobModal').data('jobid',j);
@@ -341,36 +238,6 @@ function selectJob(j) {
 }
 
 function loadJavascript(){
-	$('#submitTaskPostButton').on(
-			'click',
-			function(e) {
-				var user = $('#user').val()
-
-				var e = $("#task_id");
-				var task_option = $("#task_id option:selected").val();
-				var task = $("#task_id option:selected").text();
-				var effort = $("#effort").val();
-				var first = firstDayOfWeek( $('#week').val()  )
-				var when = first.getTime() 
-				var csrf = $('input[name=csrfToken]').val()
-				var json = '{ "id":0 ,"task_id":'+ task_option+' , "when":"'+ when+'" , "task":"'+task+'","effort":'+effort+' }'
-
-				$.ajax({
-					type : "POST",
-					headers: {
-						'Csrf-Token':csrf
-					} ,
-					contentType : "application/json; charset=utf-8",
-					data : json,
-					url : "/api/timeentry",
-					success : function(data) {
-						loadTimeEntryData();
-					},
-					error : function(response) {
-						alert("error " + response.statusText + ":"+ response.status+" - " +response.responseText)
-					}
-				});
-			});
 
 
 	function doPostPut(e,id) {
@@ -382,7 +249,6 @@ function loadJavascript(){
 		var s = ["description","start_date","end_date"]
 		var n = ["required_effort","actual_effort","ideal_daily_effort","estimate_left_effort","priority"]
 
-		console.log("ID IS "+id)
 		var json = '{ "id":'+id+' '
 		var useType = "PUT"
 			if ( id == 0 ) {
@@ -402,7 +268,7 @@ function loadJavascript(){
 			json += ',"'+i+'":'+v+''
 		});
 		json += ',"user_id":0 }'
-			console.log(json);
+		console.log(useType + " json="+json);
 		$.ajax({
 			type : useType,
 			headers: {
@@ -441,7 +307,6 @@ function loadJavascript(){
 
 	}) .on('show.bs.modal', function() {
 
-		console.log('shown baby!');
 		jobIndex=$(this).data('jobid');
 		console.log(jobs[jobIndex]);
 		j= jobs[jobIndex];
@@ -456,25 +321,4 @@ function loadJavascript(){
 
 	});
 
-	$('#postTaskButton').hover(	
-			function() {
-				addTask();
-			}
-	);
-	$('#postTaskButton').click(	
-			function() {
-				$('#addTaskPost').modal('hide');
-			}
-	);
-	if ( $('#week').length > 0 ) {
-		$('#week').val(getAdjustedWeek(0))
-
-		loadTimeEntryData();
-
-		@if( user == null ) {
-			$('#postTaskButton').prop('disabled', true);
-		} else {
-			$('#postTaskButton').prop('disabled', false);
-		}
-	}
 }

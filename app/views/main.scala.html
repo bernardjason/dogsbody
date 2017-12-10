@@ -52,11 +52,9 @@
 
  		@if( user != null && user.role.getOrElse("") == "admin" ) {
  		<li id="useradmin"><a href="/useradmin">user admin</a></li>
- 		<li id="taskadmin"><a href="/taskadmin">task admin</a></li>
 		}
 
-  		<li id="home" class="active"><a href="/">Home</a></li>
-  		<li id="todo" class="active"><a href="/todoDebug">ToDo</a></li>
+  		<li id="home" class="active"><a href="/todoDebug">Home</a></li>
 
   		<li><a href="#login" data-toggle="modal" data-target="#login">Login</a></li>
  		<li><a href="/logout">Logout</a></li>
@@ -108,13 +106,6 @@
 		 </div>
        </div>
      </div>
-
-
   </div>
-
 </body>
-
-
-
-
 </html>

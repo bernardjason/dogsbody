@@ -7,7 +7,6 @@ import scala.util.Success
 import scala.util.Try
 
 import javax.inject.Inject
-import models.Tasks
 import models.User
 import play.api.Logger
 import play.api.cache.SyncCacheApi
@@ -32,7 +31,7 @@ import models.Jobs
 
 class Application @Inject() (implicit ec: ExecutionContext, components: ControllerComponents,
                              cache: SyncCacheApi, protected val dbConfigProvider: DatabaseConfigProvider)
-  extends AbstractController(components) with tables.UserTable with tables.TasksTable with HasDatabaseConfig[JdbcProfile]
+  extends AbstractController(components) with tables.UserTable with HasDatabaseConfig[JdbcProfile]
   with play.api.i18n.I18nSupport {
 
   override val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
@@ -40,7 +39,6 @@ class Application @Inject() (implicit ec: ExecutionContext, components: Controll
   import dbConfig.profile.api._
 
   val users = TableQuery[Users]
-  val tasks = TableQuery[ATask]
 
   val loginForm = Form(
     mapping(
@@ -56,16 +54,7 @@ class Application @Inject() (implicit ec: ExecutionContext, components: Controll
       "nickname" -> text.verifying("need nickname for add or update", { !_.isEmpty }),
       "role" -> optional(text))(User.apply)(User.unpick))
 
-  val taskForm = Form(
-    mapping(
-      "name" -> text,
-      "code" -> text)(Tasks.apply)(Tasks.unapplyit))
-
-  val taskAdminForm = Form(
-    mapping(
-      "id" -> default(longNumber, 0L),
-      "name" -> text.verifying("need name for add or update", { !_.isEmpty }),
-      "code" -> text.verifying("need code for add or update", { !_.isEmpty }))(Tasks.apply)(Tasks.unapplyitadmin))
+ 
 
   val jobForm = Form(
     mapping(
@@ -80,16 +69,7 @@ class Application @Inject() (implicit ec: ExecutionContext, components: Controll
       
       
 
-  def debug = Action {
-    println("*****************************************************************************")
-    println("*    DEBUG LOGIN                                                            *")
-    println("*****************************************************************************")
-    val id = java.util.UUID.randomUUID().toString
-    val u = User(1, "admin", "admin", "Dont call me Bernie", Some("admin"))
-    cache.set(id, u)
-    Redirect(routes.Application.list()).withSession(
-      "user" -> id)
-  }
+ 
   def todoDebug = Action {
     println("*****************************************************************************")
     println("*    DEBUG TODO                                                            *")
@@ -113,7 +93,7 @@ class Application @Inject() (implicit ec: ExecutionContext, components: Controll
 
   def notLoggedIn(implicit request: play.api.mvc.Request[play.api.mvc.AnyContent]) = {
     Logger.info(s"not logged in")
-    Redirect(routes.Application.list()).withNewSession
+    Redirect(routes.Application.todo()).withNewSession
   }
 
   def getAuth(implicit request: play.api.mvc.Request[play.api.mvc.AnyContent]): Option[User] = {
@@ -127,7 +107,7 @@ class Application @Inject() (implicit ec: ExecutionContext, components: Controll
   def useradmin = Action.async { implicit request =>
     getAuth.map { u =>
       getAllTheUsers.map { users =>
-        Ok(views.html.admin(loginAdminForm, taskForm, u, users.toList))
+        Ok(views.html.admin(loginAdminForm, u, users.toList))
       }
     }.getOrElse { Future.successful(notLoggedIn) }
   }
@@ -141,89 +121,29 @@ class Application @Inject() (implicit ec: ExecutionContext, components: Controll
   }
 
   def index = Action {
-    Redirect(routes.Application.list())
+    Redirect(routes.Application.todo())
   }
 
-  def list = Action.async { implicit request =>
-    getAuth.map { auth =>
-      getAllTheTasks.map { list =>
-        Ok(views.html.list(loginForm, auth, list.toList))
-      }
-    }.getOrElse { Future.successful(Ok(views.html.list(loginForm, null, null))) }
-  }
-
-  def getAllTheTasks = {
-    val q = tasks.result
-    val list = db.run(q)
-    list
-  }
-  def taskadmin = Action.async { implicit request =>
-    getAuth.map { u =>
-      getAllTheTasks.map { list =>
-        Ok(views.html.taskadmin(loginForm, taskAdminForm, u, list.toList))
-      }
-    }.getOrElse { Future.successful(notLoggedIn) }
-  }
-
-  def newtask = Action.async { implicit request =>
-
-    taskAdminForm.bindFromRequest.fold(
-      formWithErrors => {
-        getAuth.map { u =>
-          getAllTheTasks.map { list =>
-            BadRequest(views.html.taskadmin(loginForm, formWithErrors, u, list.toList))
-          }
-        }.getOrElse {
-          Future.successful(notLoggedIn)
-        }
-      },
-      newtaskData => {
-        val delete = request.body.asFormUrlEncoded.get("action").headOption match {
-          case Some("delete") => true
-          case _              => false
-        }
-        getAuth.map { u =>
-          if (newtaskData.id > 0) {
-            Logger.info("Update " + newtaskData)
-            if (newtaskData.id > 0) {
-              val q = tasks.filter { u => u.id === newtaskData.id }
-              if (delete) {
-                db.run((q.delete).asTry).map { handleDbResponse(_, routes.Application.taskadmin()) }
-              } else {
-                db.run((q.update(newtaskData)).asTry).map { handleDbResponse(_, routes.Application.taskadmin()) }
-              }
-            } else {
-              val q = tasks.filter(u => u.id === newtaskData.id).map(x => (x.name, x.code))
-              val u = (newtaskData.name, newtaskData.code)
-              db.run((q.update(u)).asTry).map { handleDbResponse(_, routes.Application.taskadmin()) }
-            }
-          } else {
-            Logger.info("Insert " + newtaskData)
-            db.run((tasks += newtaskData).asTry).map { handleDbResponse(_, routes.Application.taskadmin()) }
-          }
-        }.getOrElse { Future.successful(Redirect(routes.Application.list()).withNewSession) }
-      })
-  }
-
+ 
   def newuser = Action.async { implicit request =>
 
     loginAdminForm.bindFromRequest.fold(
       formWithErrors => {
         getAuth.map { u =>
           getAllTheUsers.map(users =>
-            BadRequest(views.html.admin(formWithErrors, taskForm, u, users.toList)))
+            BadRequest(views.html.admin(formWithErrors, u, users.toList)))
         }.getOrElse {
           Future.successful(notLoggedIn)
         }
       },
       newuserData => {
-        println(request.body.asFormUrlEncoded.get("action").headOption)
+        Logger.debug(request.body.asFormUrlEncoded.get("action").headOption.toString)
 
         val delete = request.body.asFormUrlEncoded.get("action").headOption match {
           case Some("delete") => true
           case _              => false
         }
-        println("DELETE IS " + delete)
+        Logger.debug("DELETE " + delete)
 
         getAuth.map { u =>
           if (newuserData.id > 0) {
@@ -246,7 +166,7 @@ class Application @Inject() (implicit ec: ExecutionContext, components: Controll
             Logger.info("Insert " + newuserData)
             db.run((users += newuserData).asTry).map { handleDbResponse(_, routes.Application.useradmin()) }
           }
-        }.getOrElse { Future.successful(Redirect(routes.Application.list()).withNewSession) }
+        }.getOrElse { Future.successful(Redirect(routes.Application.todo()).withNewSession) }
 
       })
   }
@@ -275,14 +195,14 @@ class Application @Inject() (implicit ec: ExecutionContext, components: Controll
         Logger.info(s"login is [${id}] and db is ${user}")
       }
       if (id != null)
-        Redirect(routes.Application.list()).withSession("user" -> id)
+        Redirect(routes.Application.todo()).withSession("user" -> id)
       else
-        Redirect(routes.Application.list()).withNewSession
+        Redirect(routes.Application.todo()).withNewSession
     }
 
   }
 
   val logout = Action {
-    Redirect(routes.Application.list()).withNewSession
+    Redirect(routes.Application.todo()).withNewSession
   }
 }
