@@ -4,7 +4,7 @@
 
 # Home page
 GET      /					controllers.Application.todo
-GET      /todoDebug         controllers.Application.todoDebug
+#GET      /todoDebug         controllers.Application.todoDebug
 GET      /todo              controllers.Application.todo
 GET      /javascript.js     controllers.Application.javascript
 
