@@ -1,0 +1,145 @@
+@(loginForm:play.api.data.Form[User],user:models.User,jobForm:play.api.data.Form[Jobs])(implicit request: RequestHeader,messagesProvider: MessagesProvider)
+@import helper._
+@import play.i18n.Messages
+@import controllers.FormHelper.custom
+
+
+@main( "To Do" , loginForm ,user) {
+
+  <script>
+
+
+    $(document).ready(function(){
+
+        $(".dropdown-menu li a").click(function(){
+        var s = $(this).attr('data-val')
+        var t = $(this).text()
+        console.log(t)
+        console.log($(this).text() )
+        $("#options").text(t);
+ 		var a = s.split(',')
+ 	 	$('#id').val(a[0]) 
+ 	 	$('#user').val(a[1]) 
+ 	 	$('#nickname').val(a[2]) 
+ 	 	$('#role').val(a[3]) 
+        });
+
+        $(".nav li").removeClass("active");
+        $('#todo').addClass('active');
+
+
+           
+        loadJobsData();
+    });
+  </script>
+  
+<div class="container">
+	<br>
+	<button type="button" class="btn btn-default btn-danger btn-space" id="postJobButton" onClick="addJob()">New Job
+  	<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 
+	</button>
+	<br>
+	<br>
+	
+	
+	
+		<div class="well table-responsive" >
+		 <div class="btn-group btn-group-justified">
+			<table class="table table-striped">
+    			<thead>
+      			<tr>
+        			<th>description</th>
+        			<th>required</th>
+        			<th>actual</th>
+        			<th>ideal</th>
+        			<th>left</th>
+        			<th>start</th>
+        			<th>end</th>
+        			<th>priority</th>
+        			<th>Remove</th>
+      			</tr>
+    			</thead>
+    			<tbody id="jobs">
+    			</tbody>
+			</table>
+			</div>
+       <div id="chart_div" style="width: 100%; height: 100%;"></div>
+
+		</div>
+		
+		
+
+<div class="modal fade" id="updateJobModal" role="dialog">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header">
+                <h4 class="modal-title">Update</h4>
+           </div>
+           <div class="modal-body">
+               <div>
+  					<dl>
+ 						<dd>
+  							<div class="form-group">
+  @helper.inputText(jobForm("id") , '_class -> "dl-horizontal",'_help -> "id" )
+  @helper.inputText(jobForm("description") , '_class -> "dl-horizontal",'_help -> "brief description" )
+  @helper.inputText(jobForm("actual_effort") , '_class -> "dl-horizontal",'_help -> "brief description" )
+  @helper.inputText(jobForm("required_effort") , '_class -> "dl-horizontal",'_help -> "required to complete" )
+  @helper.inputText(jobForm("estimate_left_effort") , '_class -> "dl-horizontal",'_help -> "required to complete" )
+  @helper.inputText(jobForm("ideal_daily_effort") , '_class -> "dl-horizontal",'_help -> "needed to complete per day" )
+  @helper.inputDate(jobForm("start_date") ,'_class -> "dl-horizontal", '_help -> "started" )
+  @helper.inputDate(jobForm("end_date") ,'_class -> "dl-horizontal", '_help -> "to finish" )
+  @helper.inputText(jobForm("priority") ,'_class -> "dl-horizontal", '_help -> "important?" )
+  @CSRF.formField  
+  
+							</div>
+  									
+  						</dd>
+  					</dl>
+  					@CSRF.formField            		
+  								
+  					<button id = "submitJobPutButton" class="btn btn-primary" data-dismiss="modal" type="button">Submit</button>
+  					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+										
+			</div>
+		</div> <!-- modal body -->
+	</div> <!-- modal content -->
+	</div> <!-- modal dialog -->
+</div> <!-- updateJob -->
+
+
+<div class="modal fade" id="addJobModal" role="dialog">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header">
+                <h4 class="modal-title">Create</h4>
+           </div>
+           <div class="modal-body">
+               <div>
+  					<dl>
+ 						<dd>
+  							<div class="form-group">
+
+  @helper.inputText(jobForm("description") 			,'id -> "post_description" , '_class -> "dl-horizontal",'_help -> "brief description" )
+  @helper.inputText(jobForm("required_effort") 		,'id -> "post_required_effort" , '_class -> "dl-horizontal",'_help -> "required to complete" )
+  @helper.inputText(jobForm("ideal_daily_effort") 	,'id -> "post_ideal_daily_effort" , '_class -> "dl-horizontal",'_help -> "needed to complete per day" )
+  @helper.inputDate(jobForm("start_date") 			,'id -> "post_start_date" , '_class -> "dl-horizontal", '_help -> "started" )
+  @helper.inputDate(jobForm("end_date") 			,'id -> "post_end_date" , '_class -> "dl-horizontal", '_help -> "to finish" )
+  @helper.inputText(jobForm("priority") 			,'id -> "post_priority" , '_class -> "dl-horizontal", '_help -> "important?" )
+  @CSRF.formField  
+  
+							</div>
+  									
+  						</dd>
+  					</dl>
+  					@CSRF.formField            		
+  								
+  					<button id = "submitJobPostButton" class="btn btn-primary" data-dismiss="modal" type="button">Submit</button>
+  					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+										
+			</div>
+		</div> <!-- modal body -->
+	</div> <!-- modal content -->
+	</div> <!-- modal dialog -->
+</div> <!-- addJob -->
+
+}	

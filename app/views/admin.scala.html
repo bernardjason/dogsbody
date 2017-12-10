@@ -1,0 +1,65 @@
+@(loginForm:play.api.data.Form[User],taskForm:play.api.data.Form[Tasks],user:models.User,users:List[User])(implicit request: RequestHeader,messagesProvider: MessagesProvider)
+@import helper._
+@import play.i18n.Messages
+
+@main( "Admin" , loginForm ,user) {
+
+<div class="container">
+<div class="page-header">
+  <h1>User admin page</h1>
+  
+  <script>
+
+    $(document).ready(function(){
+        $(".dropdown-menu li a").click(function(){
+        var s = $(this).attr('data-val')
+        var t = $(this).text()
+        console.log(t)
+        console.log($(this).text() )
+        $("#options").text(t);
+ 		var a = s.split(',')
+ 	 	$('#id').val(a[0]) 
+ 	 	$('#user').val(a[1]) 
+ 	 	$('#nickname').val(a[2]) 
+ 	 	$('#role').val(a[3]) 
+        });
+
+        $(".nav li").removeClass("active");
+        $('#useradmin').addClass('active');
+    });
+  </script>
+
+  @if( loginForm.hasGlobalErrors ) {
+    <ul>
+    @for(error <- loginForm.globalErrors) {
+      <li>@error.format</li>
+    }
+    </ul>
+  }
+
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="options" data-toggle="dropdown">Users
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+  		@for(u <- users ) {
+      		<li role="presentation"><a role="menuitem" tabindex="-1" href="#" data-val='@u.id,@u.user,@u.nickname,@u.role'>@u.user (@u.id)</a></li>
+      		<li role="presentation" class="divider"></li>
+  		} 
+    </ul>
+  </div>
+  
+
+  @helper.form(action = routes.Application.newuser) {
+  @helper.inputText(loginForm("id") , '_help -> "for update only" )
+  @helper.inputText(loginForm("user") , '_help -> "unique login" )
+  @helper.inputText(loginForm("password") , '_help -> "leave blank unless setting" )
+  @helper.inputText(loginForm("nickname") , '_help -> "friendly name" )
+  @helper.inputText(loginForm("role") , '_help -> "leave blank unless adding admin" )
+  @CSRF.formField  
+  <button class="btn btn-info btn-lg glyphicon glyphicon-ok save" type="submit" name="action" value="save">Save</button>
+  <button class="btn btn-info btn-lg glyphicon glyphicon-trash delete" type="submit" name="action" value="delete">Delete</button>
+}
+</div>
+</div>
+
+}	

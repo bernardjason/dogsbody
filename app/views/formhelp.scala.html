@@ -1,0 +1,10 @@
+@* formhelp Template File *@
+@(elements: helper.FieldElements)
+
+<div class="well well-sm @if(elements.hasErrors) {error}">
+   <a href="#" data-toggle="tooltip" title="@elements.infos.mkString(", ")"><label for="@elements.id">@elements.label</label></a>
+   <div class="input">
+       @elements.input
+       <span class="errors">@elements.errors.mkString(", ")</span>
+    </div>
+</div>

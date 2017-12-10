@@ -1,0 +1,34 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET      /                  controllers.Application.debug
+#GET     /                           controllers.Application.list
+GET      /todoDebug         controllers.Application.todoDebug
+GET      /todo              controllers.Application.todo
+GET      /javascript.js     controllers.Application.javascript
+
+# Map static resources from the /public folder to the /assets URL path
+GET      /assets/*file      controllers.Assets.at(path="/public", file)
+
+GET      /list              controllers.Application.list
+
+GET      /useradmin         controllers.Application.useradmin
+GET      /taskadmin         controllers.Application.taskadmin
+
+GET      /api/timeentries   controllers.Api.getTimeEntries(week:Option[String])
+POST     /api/timeentry     controllers.Api.postTimeEntry
+DELETE   /api/timeentry     controllers.Api.deleteTimeEntry(id:Long)
+
+GET      /api/jobs          controllers.Api.getJobs()
+POST     /api/jobs          controllers.Api.postJob
+PUT      /api/jobs          controllers.Api.putJob
+DELETE   /api/jobs          controllers.Api.deleteJobs(id: Long)
+
+POST     /login             controllers.Application.login
+POST     /newuser           controllers.Application.newuser
+POST     /newtask           controllers.Application.newtask
+
+GET      /logout            controllers.Application.logout
+

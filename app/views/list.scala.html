@@ -1,0 +1,102 @@
+@(loginForm:play.api.data.Form[User],user:models.User,tasks:List[Tasks])(implicit request: RequestHeader)
+@import helper._
+@import play.i18n.Messages
+
+@main( "Tasklist" , loginForm ,user) {
+
+  <script>
+
+    $(document).ready(function(){
+        $(".dropdown-menu li a").click(function(){
+        var s = $(this).attr('data-val')
+        var t = $(this).text()
+        console.log(t)
+        console.log($(this).text() )
+        $("#options").text(t);
+ 		var a = s.split(',')
+ 	 	$('#id').val(a[0]) 
+ 	 	$('#user').val(a[1]) 
+ 	 	$('#nickname').val(a[2]) 
+ 	 	$('#role').val(a[3]) 
+        });
+
+        $(".nav li").removeClass("active");
+        $('#home').addClass('active');
+    });
+  </script>
+  
+<div class="container">
+	<br>
+	<button type="button" class="btn btn-default btn-danger btn-space" id="postTaskButton" onClick="addTask()">New Task
+  	<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 
+	</button>
+	<br>
+	<br>
+	<div class="row" id="weekpicked" >
+		<div class="col-sm-3">
+		<input id="week" type="week" onchange="loadTimeEntryData()" />
+		</div>
+	
+		<div class="col-sm-6">
+        	<button type="button" onClick='selectWeek(-1)' class="btn btn-default btn-sm"><span class="glyphicon glyphicon-chevron-left"></span>Prev</button>
+			<label id="displayweek"></label>
+        	<button type="button" onClick='selectWeek(+1)' class="btn btn-default btn-sm"><span class="glyphicon glyphicon-chevron-right"></span>Next</button>
+		</div>
+
+
+		<div class="well" >
+			<table class="table table-striped">
+    			<thead>
+      			<tr>
+        			<th width='50%'>Code</th>
+        			<th>Effort
+				<span class="label label-success" id="total">0</span>
+					</th>
+        			<th>Remove</th>
+      			</tr>
+    			</thead>
+    			<tbody id="timeentries">
+    			</tbody>
+			</table>
+		</div>
+	</div>
+
+<div class="modal fade" id="addTaskPost" role="dialog">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header">
+                <h4 class="modal-title">Post</h4>
+           </div>
+           <div class="modal-body">
+               <div>
+  					<dl>
+  						<dt><label>info</label></dt>
+ 						<dd>
+  							<div class="form-group">
+                       			<form>
+									<label for="sel1">Select task:</label>
+ 									<select class="form-control" id="task_id">
+  										@if( tasks != null ) {
+	  										@for(l <- tasks) {
+	  											<option value="@l.id">@l.name @l.code</option>
+	  										}
+  										}
+  									</select>
+  								</form>
+							</div>
+  									
+  							<input id="effort" type="number" step="0.1" class="form-control bfh-number" data-min="5" data-max="25">
+  						</dd>
+  					</dl>
+  					@CSRF.formField            		
+  								
+  					<button id = "submitTaskPostButton" class="btn btn-primary" data-dismiss="modal" type="button">Submit</button>
+  					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+										
+			</div>
+		</div> <!-- modal body -->
+	</div> <!-- modal content -->
+	</div> <!-- modal dialog -->
+</div> <!-- addTaskPost -->
+
+}	

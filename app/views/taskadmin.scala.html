@@ -1,0 +1,62 @@
+@(loginForm:play.api.data.Form[User],taskForm:play.api.data.Form[Tasks],user:models.User,tasks:List[Tasks])(implicit request: RequestHeader,messagesProvider: MessagesProvider)
+@import helper._
+@import play.i18n.Messages
+
+@main( "Admin" , loginForm ,user) {
+
+<div class="container">
+<div class="page-header">
+  <h1>Task admin page</h1>
+  
+  <script>
+
+    $(document).ready(function(){
+        $(".dropdown-menu li a").click(function(){
+        var s = $(this).attr('data-val')
+        var t = $(this).text()
+        console.log(t)
+        console.log($(this).text() )
+        $("#options").text(t);
+ 		var a = s.split(',')
+ 	 	$('#id').val(a[0]) 
+ 	 	$('#name').val(a[1]) 
+ 	 	$('#code').val(a[2]) 
+        });
+
+        $(".nav li").removeClass("active");
+        $('#taskadmin').addClass('active');
+    });
+  </script>
+
+  @if( loginForm.hasGlobalErrors ) {
+    <ul>
+    @for(error <- loginForm.globalErrors) {
+      <li>@error.format</li>
+    }
+    </ul>
+  }
+
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="options" data-toggle="dropdown">Tasks
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+  		@for(t <- tasks ) {
+      		<li role="presentation"><a role="menuitem" tabindex="-1" href="#" data-val='@t.id,@t.name,@t.code'>@t.name (@t.id)</a></li>
+      		<li role="presentation" class="divider"></li>
+  		} 
+    </ul>
+  </div>
+  
+
+  @helper.form(action = routes.Application.newtask) {
+  @helper.inputText(taskForm("id") , '_help -> "for update only" )
+  @helper.inputText(taskForm("name") , '_help -> "task name" )
+  @helper.inputText(taskForm("code") , '_help -> "internal code" )
+  @CSRF.formField  
+  <button class="btn btn-info btn-lg glyphicon glyphicon-ok save" type="submit" name="action" value="save">Save</button>
+  <button class="btn btn-info btn-lg glyphicon glyphicon-trash delete" type="submit" name="action" value="delete">Delete</button>
+}
+</div>
+</div>
+
+}	
