@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET      /					controllers.Application.todoDebug
+GET      /					controllers.Application.todo
 GET      /todo              controllers.Application.todo
 GET      /javascript.js     controllers.Application.javascript
 
