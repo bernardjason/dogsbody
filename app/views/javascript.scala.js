@@ -23,10 +23,9 @@ function setupJobChart() {
       chartoptions = {
         title: 'How busy am I?',
         vAxis: {title: 'Accumulated Rating'},
-       legend: { position: 'bottom' },
+       legend: { position: 'top' , maxLines: 3 },
         lineWidth: 0,
     	connectSteps: false,
-    	chartArea:{top:0},
     	vAxis: {
           minValue: 0,
           ticks: [0, 0.20,0.40,0.60,0.80,1 ]
@@ -117,20 +116,23 @@ function loadJobsData() {
 
 				var accordion=0
 				jobs = []
+				//var colours = ["bg-inverse","bg-light"]
+				//var whichcolour=0
 				$.each(	data,function(key, j) {
 					console.log(j)
 					jobs.push(j)
+					//var head = '<div class="row row-m-t '+ colours[whichcolour%2]+'">'
 					var head = '<tr>'
-
+					//whichcolour=whichcolour+1
 					var newone = 
 						'<td><a href="#updateJobModal" class="btn btn-default btn-block" onClick="selectJob('+accordion+')" data-id="jobrow'+accordion+'">' + j.description + '</a></td>' +
-						'<td><input onchange="updateValue(this,'+accordion+',\'required_effort\',0)" class="form-control input-sm" type="number"  min="0" max="10" step="0.25" value="' + j.required_effort + '"/></td>' +
-						'<td><input onchange="updateValue(this,'+accordion+',\'actual_effort\',0)" class="form-control input-sm" type="number"  min="0" max="10" step="0.25" value="' + j.actual_effort + '"/></td>' +
-						'<td><input onchange="updateValue(this,'+accordion+',\'ideal_daily_effort\',0)" class="form-control input-sm" type="number"  min="0" max="10" step="0.25" value="' + j.ideal_daily_effort + '"/></td>' +
-						'<td><input onchange="updateValue(this,'+accordion+',\'estimate_left_effort\',0)" class="form-control input-sm" type="number"  min="0" max="10" step="0.25" value="' + j.estimate_left_effort + '"/></td>' +
-						'<td><input onchange="updateValue(this,'+accordion+',\'start_date\',1)" class="form-control input-sm" type="date"   value="' + j.start_date + '"/></td>' +
-						'<td><input onchange="updateValue(this,'+accordion+',\'end_date\',1)" class="form-control input-sm" type="date"   value="' + j.end_date + '"/></td>' +
-						'<td><input onchange="updateValue(this,'+accordion+',\'priority\',0)" class="form-control input-sm" type="number" min="0" max="99" value="' + j.priority + '"/></td>' +
+						'<td><input onchange="updateValue(this,'+accordion+',\'required_effort\',0)" class="form-control numb" type="number"  min="0" max="1" step="0.25" value="' + j.required_effort + '"/></td>' +
+						'<td><input onchange="updateValue(this,'+accordion+',\'actual_effort\',0)" class="form-control numb" type="number"  min="0" max="1" step="0.25" value="' + j.actual_effort + '"/></td>' +
+						'<td><input onchange="updateValue(this,'+accordion+',\'ideal_daily_effort\',0)" class="form-control numb" type="number"  min="0" max="1" step="0.25" value="' + j.ideal_daily_effort + '"/></td>' +
+						'<td><input onchange="updateValue(this,'+accordion+',\'estimate_left_effort\',0)" class="form-control numb" type="number"  min="0" max="1" step="0.25" value="' + j.estimate_left_effort + '"/></td>' +
+						'<td><input onchange="updateValue(this,'+accordion+',\'start_date\',1)" class="form-control " type="date"   value="' + j.start_date + '"/></td>' +
+						'<td><input onchange="updateValue(this,'+accordion+',\'end_date\',1)" class="form-control " type="date"   value="' + j.end_date + '"/></td>' +
+						'<td><input onchange="updateValue(this,'+accordion+',\'priority\',0)" class="form-control " type="number" min="0" max="99" value="' + j.priority + '"/></td>'+
 						'<td><button type="button" onClick="deleteJobEntry('+j.id+')" class="btn btn-danger">-</button></td>'
 						var tail = '</tr>'
 
@@ -138,6 +140,7 @@ function loadJobsData() {
 
 					accordion=accordion+1
 				});
+				//$("#jobs").append( '<tr><td colspan="9"><div id="chart_div"></div></td></tr>' ); 
 				doJobChart();
 
 

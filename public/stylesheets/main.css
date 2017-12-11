@@ -1,59 +1,109 @@
-
-body { background: #ffffff!important;}
- table, th, td {
-   border: 1px dotted #ffffff !important; 
+@media only screen and (orientation:portrait) {
+	html body * {
+		display: none;
+	}
+	#warning-message {
+		display: block;
+		position: relative;
+		height: 200px;
+		position: absolute;
+		top: 50%; /* adjust this as needed */
+		left: 0;
+		width: 100%;
+		text-align: center;
+	}
 }
 
-
-.navbar-default {
-  background: #0000FF;
-  border: 0;
-  margin-bottom: 0;
-  .navbar-toggle {
-    background: @blue;
-  }
+@media only screen and (orientation:landscape) {
+	#warning-message {
+		display: none;
+	}
+	body {
+		background: #ffffff !important;
+	}
+	table, th, td {
+		border: 1px dotted #ffffff !important;
+	}
+	.navbar-default {
+		background: #0000FF;
+		border: 0;
+		margin-bottom: 0;
+		.
+		navbar-toggle
+		{
+		background
+		:
+		@
+		blue;
+	}
 }
 
-.navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
-    color: #FFFFFF !important;
-    background-color: #7777AA !important;
+.navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:hover,
+	.navbar-default .navbar-nav>.active>a:focus {
+	color: #FFFFFF !important;
+	background-color: #7777AA !important;
 }
 
-.nav > li > a {
-    position: relative;
-    display: block;
-    color: #FFFFFF !important;
-    background-color: #0000AA !important;
+.nav>li>a {
+	position: relative;
+	display: block;
+	color: #FFFFFF !important;
+	background-color: #0000AA !important;
 }
 
 .panel-heading {
-    background-color: #DDDDDD !important;
+	background-color: #DDDDDD !important;
 }
+
 .jumbotron {
-    background-color: #DDDDDD !important;
+	background-color: #DDDDDD !important;
 }
 
 .loader {
-    border: 16px solid #f3f3f3; /* Light grey */
-    border-top: 16px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    animation: spin 2s linear infinite;
+	border: 16px solid #f3f3f3; /* Light grey */
+	border-top: 16px solid #3498db; /* Blue */
+	border-radius: 50%;
+	width: 120px;
+	height: 120px;
+	animation: spin 2s linear infinite;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+@
+keyframes spin { 0% {
+	transform: rotate(0deg);
 }
 
+100%
+{
+transform
+:
+ 
+rotate
+(360deg);
+ 
+}
+}
 .no-padding {
-    padding-right: 0 !important;
-    padding-left: 0 !important;
+	padding-right: 0 !important;
+	padding-left: 0 !important;
 }
+
 .save {
-    background-color: #4e9a06;
+	background-color: #4e9a06;
 }
+
 .delete {
-    background-color: #a40000;
+	background-color: #a40000;
+}
+
+.numb{
+	min-width:80px;
+	
+}
+
+.container.body-container{
+  left: 1%;
+  right: 1%;
+} 
+
 }
