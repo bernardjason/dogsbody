@@ -83,7 +83,7 @@ class Application @Inject() (implicit ec: ExecutionContext, components: Controll
   def todo = Action.async { implicit request =>
     getAuth.map { auth =>
       Future.successful(Ok(views.html.todo(loginForm, auth,jobForm)) )
-    }.getOrElse( Future.successful(Ok(views.html.todo(loginForm, null,jobForm))) )
+    }.getOrElse( Future.successful(Ok(views.html.splash(loginForm, null,jobForm))) )
   }
 
   def getAllTheUsers = {

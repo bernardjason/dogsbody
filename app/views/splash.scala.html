@@ -1,0 +1,22 @@
+@(loginForm:play.api.data.Form[User],user:models.User,jobForm:play.api.data.Form[Jobs])(implicit request: RequestHeader,messagesProvider: MessagesProvider)
+@import helper._
+@import play.i18n.Messages
+@import controllers.FormHelper.custom
+
+
+@main( "Dogs Body" , loginForm ,user) {
+
+<script>
+$(document).ready(function(){
+	$('#login').modal('show')
+});
+</script>
+
+<div class="container" >
+<div class="jumbotron" height="150px">
+</div>
+  <p>Play framework simple app to track task effort</p> 
+  <p>Create tasks, estimating effort per day plus and actual effort achieved. Show on a stepped chart what the ideal daily effort means to your total effort per day. 
+  Anything over 100% will overflow the chart showing you have been over resourced</p> 
+</div>
+}	

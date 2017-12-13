@@ -1,7 +1,7 @@
 @(user:User)
 @import helper._
 
-var chartdata = null ; // new google.visualization.DataTable();;
+var chartdata = null ; 
 var chart = null;
 var chartoptions = null;
 
@@ -43,7 +43,9 @@ function setupJobChart() {
           },
       };
 
+      @if( user != null ) {
       chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div'));
+      }
       
       console.log("CHART ready");
       doJobChart();
@@ -116,14 +118,10 @@ function loadJobsData() {
 
 				var accordion=0
 				jobs = []
-				//var colours = ["bg-inverse","bg-light"]
-				//var whichcolour=0
 				$.each(	data,function(key, j) {
 					console.log(j)
 					jobs.push(j)
-					//var head = '<div class="row row-m-t '+ colours[whichcolour%2]+'">'
 					var head = '<tr>'
-					//whichcolour=whichcolour+1
 					var newone = 
 						'<td><a href="#updateJobModal" class="btn btn-default btn-block" onClick="selectJob('+accordion+')" data-id="jobrow'+accordion+'">' + j.description + '</a></td>' +
 						'<td><input onchange="updateValue(this,'+accordion+',\'required_effort\',0)" class="form-control numb" type="number"  min="0" max="1" step="0.25" value="' + j.required_effort + '"/></td>' +
@@ -140,7 +138,6 @@ function loadJobsData() {
 
 					accordion=accordion+1
 				});
-				//$("#jobs").append( '<tr><td colspan="9"><div id="chart_div"></div></td></tr>' ); 
 				doJobChart();
 
 

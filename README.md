@@ -12,7 +12,3 @@ The play evolution will add a user bernard with a password jason
 
 See running here https://bjason-dogsbody.herokuapp.com
 
-
-todo...
-1 disable new job button if not logged in
-2 present different screen if not logged in
